@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PLT Donor">
+<meta name="theme-color" id="meta-theme" content="#1a5fa8">
+<title>ระบบเฝ้าระวังผู้บริจาคเกล็ดเลือด</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --p:#1a5fa8;--pl:rgba(26,95,168,.10);--pd:#0f4a8a;
+  --bg:#f5f4f0;--s:#fff;--s2:#f0ede6;
+  --bd:rgba(0,0,0,.08);--bd2:rgba(0,0,0,.18);
+  --t:#18180f;--t2:#5a5955;--t3:#8c8a84;
+  --g:#2e6b0e;--gl:#e8f5e0;
+  --am:#7a4a08;--al:#faecd8;
+  --o:#8f3818;--ol:#fae8e2;
+  --r:#9a2828;--rl:#fae8e8;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --input-fs:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--t);font-size:14px;line-height:1.5;}
+.app{display:flex;flex-direction:column;height:100%;height:100dvh;}
+.header{flex-shrink:0;background:var(--s);border-bottom:.5px solid var(--bd);padding:calc(10px + var(--safe-top)) 16px 10px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.06);z-index:100;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.page{padding:14px 14px calc(82px + var(--safe-bot));}
+.bottom-nav{flex-shrink:0;background:var(--s);border-top:.5px solid var(--bd);display:flex;padding-bottom:var(--safe-bot);z-index:100;box-shadow:0 -1px 8px rgba(0,0,0,.07);}
+/* header */
+.logo{width:34px;height:34px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hdr-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;color:#fff;white-space:nowrap;}
+/* nav */
+.nav-btn{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;cursor:pointer;position:relative;font-family:inherit;}
+.nav-btn svg{width:23px;height:23px;margin-bottom:2px;stroke:var(--t3);}
+.nav-btn span{font-size:10px;color:var(--t3);}
+.nav-btn.active svg{stroke:var(--p);}
+.nav-btn.active span{color:var(--p);font-weight:600;}
+.nav-dot{position:absolute;top:7px;right:calc(50% - 16px);min-width:16px;height:16px;background:var(--r);color:#fff;border-radius:10px;padding:0 4px;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;}
+.fab{position:absolute;top:-14px;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.22);}
+.fab svg{stroke:#fff;width:24px;height:24px;}
+/* tabs */
+.tab{display:none;}.tab.active{display:block;}
+/* cards */
+.card{background:var(--s);border:.5px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:10px;font-weight:600;}
+/* grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+/* tiles */
+.tile{background:var(--s2);border-radius:10px;padding:10px 12px;}
+.tile-label{font-size:11px;color:var(--t2);margin-bottom:2px;font-weight:500;}
+.tile-value{font-size:22px;font-weight:700;line-height:1.1;}
+.tile-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+/* forms */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:5px;}
+.field .req{color:var(--r);margin-left:2px;}
+.field .hint{font-size:11px;color:var(--t3);margin-top:4px;}
+input[type=text],input[type=number],input[type=date],input[type=tel],select,textarea{
+  width:100%;padding:13px 14px;font-size:var(--input-fs);font-family:inherit;font-weight:400;
+  color:var(--t);background:var(--s);border:1.5px solid var(--bd2);border-radius:10px;
+  outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(26,95,168,.13);}
+input::placeholder{color:var(--t3);font-weight:400;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%238c8a84' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 20px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;transition:opacity .14s,transform .1s;}
+.btn:active{opacity:.82;transform:scale(.97);}
+.btn-primary{background:var(--p);color:#fff;}
+.btn-secondary{background:var(--s);color:var(--t);border:1.5px solid var(--bd2);}
+.btn-success{background:var(--g);color:#fff;}
+.btn-danger{background:var(--r);color:#fff;}
+.btn-warning{background:var(--am);color:#fff;}
+.btn-block{width:100%;margin-bottom:10px;}
+.btn-sm{padding:10px 16px;font-size:13px;border-radius:10px;}
+.btn-xs{padding:7px 12px;font-size:12px;border-radius:8px;}
+/* badges */
+.badge{display:inline-flex;align-items:center;padding:4px 9px;border-radius:6px;font-size:12px;font-weight:700;white-space:nowrap;}
+.badge-ok{background:var(--gl);color:var(--g);}
+.badge-y{background:var(--al);color:var(--am);}
+.badge-o{background:var(--ol);color:var(--o);}
+.badge-r{background:var(--rl);color:var(--r);}
+.badge-trend{background:#e8f0fa;color:var(--p);}
+/* alert boxes */
+.abox{border-radius:10px;padding:13px 14px;border:1.5px solid;margin-bottom:10px;}
+.abox.ok{background:var(--gl);border-color:#a8d888;color:var(--g);}
+.abox.y{background:var(--al);border-color:#f0c060;color:var(--am);}
+.abox.o{background:var(--ol);border-color:#e8a888;color:var(--o);}
+.abox.r{background:var(--rl);border-color:#e8a8a8;color:var(--r);}
+.abox.trend{background:#e8f0fa;border-color:var(--pm,#b8d0f0);color:var(--p);}
+/* ── PREDICTIVE ALERT BOX ── */
+.predict-box{border-radius:12px;padding:14px 16px;border:2px solid;margin-bottom:12px;position:relative;overflow:hidden;}
+.predict-box::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;}
+.predict-box.down{background:#fef3f2;border-color:#f7c1c1;color:#7a1f1f;}
+.predict-box.down::before{background:var(--r);}
+.predict-box.up{background:#fffbf0;border-color:#fcd34d;color:#7a4a08;}
+.predict-box.up::before{background:var(--am);}
+.predict-box.stable{background:var(--gl);border-color:#a8d888;color:var(--g);}
+.predict-box.stable::before{background:var(--g);}
+.predict-title{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.predict-sub{font-size:12px;line-height:1.6;}
+/* donor rows */
+.donor-row{display:flex;align-items:center;padding:12px 0;border-bottom:.5px solid var(--bd);gap:10px;cursor:pointer;}
+.donor-row:last-child{border-bottom:none;}
+.donor-row:active{opacity:.7;}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+/* table */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px;}
+table{border-collapse:collapse;font-size:12px;min-width:540px;width:100%;}
+th{text-align:left;padding:8px;font-size:11px;font-weight:600;color:var(--t2);background:var(--s2);border-bottom:.5px solid var(--bd);white-space:nowrap;}
+td{padding:9px 8px;border-bottom:.5px solid var(--bd);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+/* search */
+.search-wrap{position:relative;margin-bottom:12px;}
+.search-wrap input{padding-left:38px;}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;}
+/* empty */
+.empty{text-align:center;padding:36px 20px;color:var(--t3);}
+.empty svg{width:52px;height:52px;margin-bottom:14px;opacity:.3;}
+.empty h3{font-size:17px;color:var(--t2);margin-bottom:6px;}
+.empty p{font-size:13px;}
+/* profile card */
+.profile-card{background:var(--pl);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.av-lg{width:52px;height:52px;border-radius:50%;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+/* toggle tabs */
+.tab-toggle{display:flex;background:var(--s2);border-radius:10px;padding:3px;margin-bottom:14px;}
+.tab-toggle button{flex:1;border:none;padding:9px 8px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:none;color:var(--t2);font-family:inherit;transition:all .15s;}
+.tab-toggle button.active{background:var(--s);color:var(--t);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+/* quick entry */
+.quick-card{background:var(--pl);border:1.5px solid;border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.quick-big-input{font-size:36px!important;font-weight:700!important;text-align:center;padding:10px!important;border-radius:12px!important;}
+/* section label */
+.sec-label{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+/* mpv trend indicator */
+.mpv-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;}
+/* color picker */
+.cp{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;flex-shrink:0;}
+.cp.selected{border-color:var(--t);}
+/* toast */
+.toast{position:fixed;top:calc(62px + var(--safe-top));left:14px;right:14px;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:500;z-index:500;opacity:0;transform:translateY(-8px);transition:all .22s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--g);color:#fff;}
+.toast.error{background:var(--r);color:#fff;}
+.toast.info{background:var(--p);color:#fff;}
+.toast.warning{background:var(--am);color:#fff;}
+/* install */
+.install-banner{position:fixed;bottom:calc(74px + var(--safe-bot));left:14px;right:14px;background:var(--p);color:#fff;border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;z-index:300;box-shadow:0 4px 20px rgba(26,95,168,.35);animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.install-banner .ib-icon{width:42px;height:42px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.install-banner .ib-btn{background:#fff;color:var(--p);border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+.install-banner .ib-close{position:absolute;top:8px;right:10px;background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;}
+/* setup */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:flex-end;justify-content:center;}
+.sheet{background:var(--s);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + var(--safe-bot));width:100%;max-height:92vh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 18px;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="install-banner">
+  <div class="ib-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 3v12M12 15l-4-4M12 15l4-4"/><path d="M3 18v1a2 2 0 002 2h14a2 2 0 002-2v-1"/></svg></div>
+  <div style="flex:1;"><div style="font-size:14px;font-weight:700;">ติดตั้งแอป PLT Donor</div><div style="font-size:11px;opacity:.85;">เพิ่มลงหน้าจอหลัก · ใช้ได้แบบ Offline</div></div>
+  <button class="ib-btn" id="install-btn">Install</button>
+  <button class="ib-close" onclick="document.getElementById('install-banner').style.display='none'">×</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SETUP SHEET -->
+<div class="sheet-overlay" id="setup-overlay" style="display:none;">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="width:56px;height:56px;background:var(--pl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1a5fa8" stroke-width="1.5"/><path d="M12 7v5l3 2" stroke="#1a5fa8" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div style="font-size:22px;font-weight:700;color:var(--p);">ตั้งค่าระบบ</div>
+      <div style="font-size:14px;color:var(--t2);margin-top:4px;">กำหนดข้อมูลโรงพยาบาลของท่าน</div>
+    </div>
+    <div class="field"><label>Hospital / Organization <span class="req">*</span></label><input type="text" id="s-hospital" placeholder="e.g. Lampang Hospital"></div>
+    <div class="field"><label>แผนก / Ward</label><input type="text" id="s-dept" placeholder="เช่น งานธนาคารเลือด"></div>
+    <div class="row2">
+      <div class="field"><label>รหัสนำหน้าผู้บริจาค</label><input type="text" id="s-prefix" placeholder="DD" maxlength="5"></div>
+      <div class="field"><label>PLT ขั้นต่ำ (×10³/µL)</label><input type="number" id="s-plt" value="250" inputmode="numeric"></div>
+    </div>
+    <div class="field">
+      <label>สีธีม</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="setup-colors">
+        <div class="cp selected" style="background:#1a5fa8;" data-c="#1a5fa8"></div>
+        <div class="cp" style="background:#0d7a5f;" data-c="#0d7a5f"></div>
+        <div class="cp" style="background:#7c3aed;" data-c="#7c3aed"></div>
+        <div class="cp" style="background:#be185d;" data-c="#be185d"></div>
+        <div class="cp" style="background:#c2410c;" data-c="#c2410c"></div>
+        <div class="cp" style="background:#374151;" data-c="#374151"></div>
+        <div class="cp" style="background:#9f1239;" data-c="#9f1239"></div>
+        <div class="cp" style="background:#1d4ed8;" data-c="#1d4ed8"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="completeSetup()" style="margin-top:8px;">เริ่มใช้งาน →</button>
+    <button class="btn btn-secondary btn-block btn-sm" onclick="skipSetup()">มีข้อมูลเดิม / ข้ามการตั้งค่า</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="logo" id="hdr-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;line-height:1.2;" id="hdr-title">PLT Donor</div>
+        <div style="font-size:10px;color:var(--t2);" id="hdr-sub">ระบบเฝ้าระวัง MAD Z-Score</div>
+      </div>
+    </div>
+    <span class="hdr-badge" id="main-badge">0 ราย</span>
+  </div>
+
+  <!-- SCROLL -->
+  <div class="scroll" id="scroll-area">
+    <div class="page">
+
+      <!-- ══ HOME ══ -->
+      <div id="tab-home" class="tab active">
+        <div class="g4" id="dash-stats" style="margin-bottom:12px;"></div>
+        <div id="dash-empty" style="display:none;">
+          <div class="card"><div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <h3>ยังไม่มีข้อมูลผู้บริจาค</h3><p>เพิ่มผู้บริจาคและบันทึกผลเพื่อเริ่มต้นใช้งาน</p>
+            <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="goTab('donors',3)">+ เพิ่มผู้บริจาค</button>
+          </div></div>
+        </div>
+        <div id="dash-content">
+          <div class="card">
+            <div class="card-title">การกระจาย Alert</div>
+            <div id="alert-legend" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
+            <div style="height:170px;position:relative;"><canvas id="alertChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">แนวโน้ม PLT รายเดือน</div>
+            <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+              <div style="min-width:360px;height:170px;position:relative;"><canvas id="monthChart"></canvas></div>
+            </div>
+          </div>
+          <div class="card"><div class="card-title">กิจกรรมล่าสุด</div><div id="recent-list"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ ALERTS ══ -->
+      <div id="tab-alerts" class="tab">
+        <div class="g3" style="margin-bottom:12px;">
+          <div class="tile" style="border-top:3px solid var(--r);"><div class="tile-label" style="color:var(--r);">Red</div><div class="tile-value" id="al-r" style="color:var(--r);">0</div><div class="tile-sub">donors</div></div>
+          <div class="tile" style="border-top:3px solid #c05828;"><div class="tile-label" style="color:var(--o);">Orange</div><div class="tile-value" id="al-o" style="color:var(--o);">0</div><div class="tile-sub">donors</div></div>
+          <div class="tile" style="border-top:3px solid var(--am);"><div class="tile-label" style="color:var(--am);">Yellow</div><div class="tile-value" id="al-y" style="color:var(--am);">0</div><div class="tile-sub">donors</div></div>
+        </div>
+        <div class="card"><div id="alert-list"></div></div>
+        <div class="card">
+          <div class="card-title">เกณฑ์การแจ้งเตือน MAD Z-Score</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--gl);border-radius:8px;"><span class="badge badge-ok">ปกติ</span><span style="font-size:13px;color:var(--g);font-weight:600;">|Z| &lt; 1.5</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--al);border-radius:8px;"><span class="badge badge-y">Yellow</span><span style="font-size:13px;color:var(--am);font-weight:600;">1.5 ≤ |Z| &lt; 2.0</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--ol);border-radius:8px;"><span class="badge badge-o">Orange</span><span style="font-size:13px;color:var(--o);font-weight:600;">2.0 ≤ |Z| &lt; 2.5</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--rl);border-radius:8px;"><span class="badge badge-r">Red Alert</span><span style="font-size:13px;color:var(--r);font-weight:600;">|Z| ≥ 2.5</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RECORD ══ -->
+      <div id="tab-record" class="tab">
+
+        <!-- MODE TOGGLE -->
+        <div class="tab-toggle">
+          <button class="active" id="mode-quick" onclick="setRecordMode('quick')">⚡ บันทึกด่วน</button>
+          <button id="mode-full" onclick="setRecordMode('full')">📋 บันทึกครบถ้วน</button>
+        </div>
+
+        <!-- ── QUICK ENTRY ── -->
+        <div id="rec-quick">
+          <div class="quick-card" id="quick-card">
+            <div class="card-title" style="margin-bottom:6px;">บันทึกด่วน — ใช้เวลาไม่เกิน 10 วินาที</div>
+            <div class="field">
+              <label>Donor <span class="req">*</span></label>
+              <select id="qrec-donor" onchange="onQuickDonorChange()"><option value="">เลือกผู้บริจาค…</option></select>
+            </div>
+            <div id="quick-donor-profile" style="display:none;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.6);border-radius:10px;">
+                <div id="qp-av" class="avatar" style="width:36px;height:36px;font-size:11px;"></div>
+                <div style="flex:1;font-size:12px;">
+                  <div style="font-weight:700;" id="qp-name">—</div>
+                  <div style="color:var(--t2);" id="qp-stats">—</div>
+                </div>
+                <div id="qp-last-badge"></div>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>วันที่บริจาค <span class="req">*</span></label>
+                <input type="date" id="qrec-date">
+              </div>
+              <div class="field">
+                <label>PLT (×10³/µL) <span class="req">*</span></label>
+                <input type="number" id="qrec-plt" placeholder="280" inputmode="numeric" class="quick-big-input" min="50" max="800">
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label>MPV (fL) <span style="font-size:10px;color:var(--t3);">ถ้ามี</span></label>
+                <input type="number" id="qrec-mpv" placeholder="9.5" step="0.1" inputmode="decimal">
+              </div>
+              <div class="field">
+                <label>ผู้บันทึก</label>
+                <input type="text" id="qrec-tech" placeholder="ชื่อเจ้าหน้าที่">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="quickCalcSave()">⚡ คำนวณและบันทึก</button>
+            <button class="btn btn-secondary btn-block btn-sm" onclick="quickCalcOnly()">ดูผล (ยังไม่บันทึก)</button>
+          </div>
+          <div id="qrec-result"></div>
+        </div>
+
+        <!-- ── FULL ENTRY ── -->
+        <div id="rec-full" style="display:none;">
+          <div class="card">
+            <div class="card-title">บันทึกผล Plateletpheresis แบบครบถ้วน</div>
+            <div class="field"><label>Donor <span class="req">*</span></label><select id="rec-donor"><option value="">เลือกผู้บริจาค…</option></select></div>
+            <div class="row2">
+              <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="rec-date"></div>
+              <div class="field"><label>PLT (×10³/µL) <span class="req">*</span></label><input type="number" id="rec-plt" placeholder="e.g. 280" inputmode="numeric" min="50" max="800"><div class="hint" id="plt-hint"></div></div>
+            </div>
+            <div class="sec-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>พารามิเตอร์เพิ่มเติม (ถ้ามี)</div>
+            <div class="row3">
+              <div class="field"><label>MPV (fL)</label><input type="number" id="rec-mpv" placeholder="9.5" step="0.1" inputmode="decimal"></div>
+              <div class="field"><label>PDW</label><input type="number" id="rec-pdw" placeholder="9.0" step="0.1" inputmode="decimal"></div>
+              <div class="field"><label>PCT</label><input type="number" id="rec-pct" placeholder="0.25" step="0.001" inputmode="decimal"></div>
+            </div>
+            <div class="row3">
+              <div class="field"><label>P-LCR (%)</label><input type="number" id="rec-plcr" placeholder="22.0" step="0.1" inputmode="decimal"></div>
+              <div class="field"><label>P-LCC</label><input type="number" id="rec-plcc" placeholder="60" inputmode="numeric"></div>
+              <div class="field"><label>ผู้บันทึก</label><input type="text" id="rec-tech" placeholder="ชื่อเจ้าหน้าที่"></div>
+            </div>
+            <div class="field"><label>หมายเหตุ</label><input type="text" id="rec-note" placeholder="บันทึกเพิ่มเติม…"></div>
+            <button class="btn btn-primary btn-block" onclick="calcAndSave()">🔬 คำนวณและบันทึก</button>
+            <button class="btn btn-secondary btn-block btn-sm" onclick="calcOnly()">คำนวณ (ยังไม่บันทึก)</button>
+          </div>
+          <div id="rec-result"></div>
+        </div>
+      </div>
+
+      <!-- ══ DONORS ══ -->
+      <div id="tab-donors" class="tab">
+        <div class="card">
+          <div class="card-title">เพิ่มผู้บริจาคใหม่</div>
+          <div class="row2">
+            <div class="field"><label>รหัสผู้บริจาค <span class="req">*</span></label>
+              <div style="display:flex;gap:6px;"><input type="text" id="nd-id" placeholder="DD001" style="flex:1;"><button class="btn btn-secondary btn-xs" onclick="autoId()">Auto</button></div>
+            </div>
+            <div class="field"><label>Full Name <span class="req">*</span></label><input type="text" id="nd-name" placeholder="First Last"></div>
+          </div>
+          <div class="row3">
+            <div class="field"><label>อายุ (ปี)</label><input type="number" id="nd-age" placeholder="45" inputmode="numeric"></div>
+            <div class="field"><label>น้ำหนัก (กก.)</label><input type="number" id="nd-weight" placeholder="70" inputmode="numeric"></div>
+            <div class="field"><label>ส่วนสูง (ซม.)</label><input type="number" id="nd-height" placeholder="170" inputmode="numeric"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>หมู่เลือด</label><select id="nd-blood"><option value="">—</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+            <div class="field"><label>เบอร์โทรศัพท์</label><input type="tel" id="nd-phone" placeholder="08x-xxx-xxxx"></div>
+          </div>
+          <div class="field"><label>หมายเหตุ / โรคประจำตัว</label><input type="text" id="nd-note" placeholder="ข้อมูลสุขภาพพิเศษ…"></div>
+          <button class="btn btn-primary btn-block" onclick="addDonor()">+ เพิ่มผู้บริจาค</button>
+          <button class="btn btn-secondary btn-block btn-sm" onclick="clearDonor()">ล้างข้อมูล</button>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="card-title" style="margin:0;">รายชื่อผู้บริจาคทั้งหมด (<span id="donor-count">0</span> ราย)</div>
+          </div>
+          <div class="search-wrap">
+            <span class="search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+            <input type="text" placeholder="ค้นหาชื่อหรือรหัส…" oninput="filterDonors(this.value)">
+          </div>
+          <div id="donor-list"><div class="empty" style="padding:24px 0;"><h3 style="font-size:15px;">ยังไม่มีผู้บริจาค</h3></div></div>
+        </div>
+      </div>
+
+      <!-- ══ ANALYZE ══ -->
+      <div id="tab-analyze" class="tab">
+        <div class="card" style="margin-bottom:12px;">
+          <div class="field" style="margin:0;"><label>Select Donor</label><select id="ana-donor" onchange="renderAnalyze(this.value)"><option value="">เลือกผู้บริจาค…</option></select></div>
+        </div>
+        <div id="ana-body">
+          <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><h3>เลือกผู้บริจาค</h3><p>ดูกราฟ PLT + MPV และการพยากรณ์แนวโน้ม</p></div>
+        </div>
+      </div>
+
+      <!-- ══ MORE ══ -->
+      <div id="tab-more" class="tab">
+        <div class="card">
+          <div class="card-title">ตั้งค่าโรงพยาบาล</div>
+          <div class="field"><label>ชื่อโรงพยาบาล / หน่วยงาน</label><input type="text" id="set-hospital"></div>
+          <div class="field"><label>แผนก / Ward</label><input type="text" id="set-dept"></div>
+          <div class="row2">
+            <div class="field"><label>รหัสนำหน้าผู้บริจาค</label><input type="text" id="set-prefix" maxlength="5"></div>
+            <div class="field"><label>PLT ขั้นต่ำ</label><input type="number" id="set-plt" inputmode="numeric"></div>
+          </div>
+          <div class="field">
+            <label>สีธีม</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="set-colors">
+              <div class="cp" style="background:#1a5fa8;" data-c="#1a5fa8"></div><div class="cp" style="background:#0d7a5f;" data-c="#0d7a5f"></div>
+              <div class="cp" style="background:#7c3aed;" data-c="#7c3aed"></div><div class="cp" style="background:#be185d;" data-c="#be185d"></div>
+              <div class="cp" style="background:#c2410c;" data-c="#c2410c"></div><div class="cp" style="background:#374151;" data-c="#374151"></div>
+              <div class="cp" style="background:#9f1239;" data-c="#9f1239"></div><div class="cp" style="background:#1d4ed8;" data-c="#1d4ed8"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block btn-sm" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="card">
+          <div class="card-title">จัดการข้อมูล</div>
+          <button class="btn btn-secondary btn-block btn-sm" onclick="exportCSV()">📊 ส่งออก CSV</button>
+          <button class="btn btn-secondary btn-block btn-sm" onclick="backupJSON()">💾 สำรองข้อมูล JSON</button>
+          <button class="btn btn-secondary btn-block btn-sm" onclick="restoreJSON()">📂 กู้คืนข้อมูล JSON</button>
+          <button class="btn btn-danger btn-block btn-sm" onclick="clearAll()" style="margin-top:6px;">🗑 ล้างข้อมูลทั้งหมด</button>
+        </div>
+        <div class="card">
+          <div class="card-title">เกี่ยวกับระบบ</div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.8;">
+            <div style="font-size:15px;font-weight:700;color:var(--t);margin-bottom:4px;">ระบบเฝ้าระวังผู้บริจาคเกล็ดเลือด v5.0</div>
+            <div>Personalized MAD Z-Score · Double Dose Plateletpheresis</div>
+            <div style="margin-top:6px;"><strong>ฟีเจอร์ใหม่ v5:</strong> บันทึกด่วน · กราฟ PLT+MPV · พยากรณ์แนวโน้ม</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:6px;">ICC=0.783 · LOO AUC=0.924 · โรงพยาบาลลำปาง 2024–2025</div>
+            <div style="font-size:11px;color:var(--t3);">ข้อมูลเก็บในเครื่อง · ไม่ส่งออกอินเตอร์เน็ต</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nb-home" onclick="goTab('home',0)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>หน้าหลัก</span>
+    </button>
+    <button class="nav-btn" id="nb-alerts" onclick="goTab('alerts',1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>แจ้งเตือน</span>
+      <div class="nav-dot" id="alert-dot"></div>
+    </button>
+    <button class="nav-btn" id="nb-record" onclick="goTab('record',2)" style="position:relative;">
+      <div class="fab" id="record-fab"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="opacity:0;"><line x1="12" y1="5" x2="12" y2="19"/></svg><span>บันทึก</span>
+    </button>
+    <button class="nav-btn" id="nb-analyze" onclick="goTab('analyze',3)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>วิเคราะห์</span>
+    </button>
+    <button class="nav-btn" id="nb-more" onclick="goTab('more',4)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg><span>เพิ่มเติม</span>
+    </button>
+  </div>
+</div>
+
+<input type="file" id="restore-file" accept=".json" style="display:none;" onchange="doRestore(event)">
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+let CFG={hospital:'',dept:'',prefix:'DD',pltMin:250,zRed:2.5,zOrange:2.0,zYellow:1.5,color:'#1a5fa8'};
+let donors=[],records=[];
+let _pending=null, _qPending=null;
+let _recordMode='quick';
+
+function loadData(){
+  try{CFG=JSON.parse(localStorage.getItem('plt_cfg')||'null')||CFG;}catch(e){}
+  try{donors=JSON.parse(localStorage.getItem('plt_donors')||'[]');}catch(e){}
+  try{records=JSON.parse(localStorage.getItem('plt_records')||'[]');}catch(e){}
+}
+function saveData(){
+  localStorage.setItem('plt_cfg',JSON.stringify(CFG));
+  localStorage.setItem('plt_donors',JSON.stringify(donors));
+  localStorage.setItem('plt_records',JSON.stringify(records));
+  applyTheme(); updateBadge();
+}
+
+/* ═══════════════════ THEME ═══════════════════ */
+function applyTheme(){
+  const c=CFG.color||'#1a5fa8';
+  const rr=parseInt(c.slice(1,3),16),gg=parseInt(c.slice(3,5),16),bb=parseInt(c.slice(5,7),16);
+  document.documentElement.style.setProperty('--p',c);
+  document.documentElement.style.setProperty('--pl',`rgba(${rr},${gg},${bb},.10)`);
+  document.documentElement.style.setProperty('--pm',`rgba(${rr},${gg},${bb},.25)`);
+  document.documentElement.style.setProperty('--pd',`rgba(${rr},${gg},${bb},.85)`);
+  document.getElementById('meta-theme').content=c;
+  const logo=document.getElementById('hdr-logo');logo.style.background=`rgba(${rr},${gg},${bb},.12)`;logo.style.color=c;
+  document.getElementById('record-fab').style.background=c;
+  document.getElementById('main-badge').style.background=c;
+  document.getElementById('hdr-title').textContent=CFG.hospital||'PLT Donor';
+  document.getElementById('hdr-sub').textContent=(CFG.dept||'งานธนาคารเลือด')+' · MAD Z-Score';
+  const ph=document.getElementById('plt-hint');if(ph)ph.textContent='ขั้นต่ำ ≥ '+CFG.pltMin+' ×10³/µL';
+  // Quick card border color
+  const qc=document.getElementById('quick-card');if(qc)qc.style.borderColor=`rgba(${rr},${gg},${bb},.25)`;
+  document.querySelectorAll('.btn-primary').forEach(b=>{b.style.background=c;});
+  document.querySelectorAll('#set-colors .cp,#setup-colors .cp').forEach(d=>{
+    d.classList.toggle('selected',d.dataset.c===c);
+    d.style.border=d.dataset.c===c?'3px solid var(--t)':'3px solid transparent';
+  });
+  refreshNav();
+}
+function updateBadge(){
+  document.getElementById('main-badge').textContent=donors.length+' ราย · '+records.length+' ครั้ง';
+  document.getElementById('donor-count').textContent=donors.length;
+}
+
+/* ═══════════════════ TOAST ═══════════════════ */
+let _tt;
+function toast(msg,type='info',ms=2600){
+  const el=document.getElementById('toast');el.textContent=msg;el.className='toast '+type;
+  requestAnimationFrame(()=>el.classList.add('show'));
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),ms);
+}
+
+/* ═══════════════════ SETUP ═══════════════════ */
+let _sc='#1a5fa8';
+document.querySelectorAll('#setup-colors .cp').forEach(el=>{
+  el.onclick=()=>{document.querySelectorAll('#setup-colors .cp').forEach(d=>d.classList.remove('selected'));el.classList.add('selected');_sc=el.dataset.c;};
+});
+function completeSetup(){
+  const h=document.getElementById('s-hospital').value.trim();
+  if(!h){toast('กรุณากรอกชื่อโรงพยาบาล','error');return;}
+  CFG.hospital=h;CFG.dept=document.getElementById('s-dept').value.trim();
+  CFG.prefix=(document.getElementById('s-prefix').value.trim()||'DD').toUpperCase();
+  CFG.pltMin=parseInt(document.getElementById('s-plt').value)||250;
+  CFG.color=_sc;saveData();closeSetup();
+}
+function skipSetup(){closeSetup();}
+function closeSetup(){document.getElementById('setup-overlay').style.display='none';applyTheme();updateBadge();renderHome();}
+
+/* ═══════════════════ NAV ═══════════════════ */
+let _curTab='home';
+const NB={'home':'nb-home','alerts':'nb-alerts','record':'nb-record','analyze':'nb-analyze','donors':'nb-more','more':'nb-more'};
+function goTab(name,idx){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  _curTab=name;document.getElementById('scroll-area').scrollTop=0;
+  refreshNav();
+  if(name==='home')renderHome();
+  else if(name==='alerts')renderAlerts();
+  else if(name==='record')initRecord();
+  else if(name==='donors'){updateBadge();renderDonorList();}
+  else if(name==='analyze')initAnalyze();
+  else if(name==='more')initSettings();
+}
+function refreshNav(){
+  const c=CFG.color||'#1a5fa8';
+  ['nb-home','nb-alerts','nb-record','nb-analyze','nb-more'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.classList.remove('active');
+    el.querySelectorAll('svg').forEach(s=>s.style.stroke='');
+    el.querySelectorAll('span').forEach(s=>{s.style.color='';s.style.fontWeight='';});
+  });
+  const nbId=NB[_curTab]||'nb-home';
+  const nb=document.getElementById(nbId);if(!nb)return;
+  nb.classList.add('active');
+  nb.querySelectorAll('svg').forEach(s=>s.style.stroke=c);
+  nb.querySelectorAll('span').forEach(s=>{s.style.color=c;s.style.fontWeight='600';});
+}
+function navAnalyze(id){goTab('analyze',3);setTimeout(()=>{document.getElementById('ana-donor').value=id;renderAnalyze(id);},30);}
+function navRecord(id){goTab('record',2);setTimeout(()=>{initRecord();document.getElementById('rec-donor').value=id;if(document.getElementById('qrec-donor'))document.getElementById('qrec-donor').value=id;onQuickDonorChange();},30);}
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+function donorStats(id){
+  const dr=records.filter(r=>r.donorId===id).sort((a,b)=>a.date.localeCompare(b.date));
+  if(dr.length<2)return null;
+  const plts=dr.map(r=>r.plt);
+  const mean=plts.reduce((a,b)=>a+b,0)/plts.length;
+  const diffs=plts.map(v=>Math.abs(v-mean)).sort((a,b)=>a-b);
+  const mad=diffs[Math.floor(diffs.length/2)]||1;
+  const scaledMAD=mad*1.4826;
+  return{dr,mean,mad,scaledMAD,zs:plts.map(p=>scaledMAD>0?(p-mean)/scaledMAD:0)};
+}
+function getAlert(z){
+  if(z==null)return{lv:'none',label:'ปกติ',cls:'badge-ok',box:'ok',icon:'✓'};
+  // Alert เฉพาะ Z-score ติดลบ (PLT ลดลงจาก personal baseline)
+  if(z>=0)return{lv:'none',label:'ปกติ',cls:'badge-ok',box:'ok',icon:'✓'};
+  const az=Math.abs(z);
+  if(az>=(CFG.zRed||2.5))return{lv:'red',label:'Red Alert',cls:'badge-r',box:'r',icon:'🔴'};
+  if(az>=(CFG.zOrange||2.0))return{lv:'orange',label:'Orange Alert',cls:'badge-o',box:'o',icon:'⚠️'};
+  if(az>=(CFG.zYellow||1.5))return{lv:'yellow',label:'Yellow Alert',cls:'badge-y',box:'y',icon:'⚠️'};
+  return{lv:'none',label:'ปกติ',cls:'badge-ok',box:'ok',icon:'✓'};
+}
+function blProfile(m){if(!m)return{l:'—',c:'var(--t3)'};if(m>300)return{l:'High',c:CFG.color};if(m>200)return{l:'Mid',c:'var(--am)'};return{l:'Low',c:'var(--r)'};}
+function recText(al,z){const dir=z>0?'elevated':'decreased';return{none:'บริจาคได้ตามแผน',yellow:`PLT ${dir} — monitor closely next visit`,orange:`PLT ${dir} — consider 1 rest cycle`,red:`PLT ${dir} — clinical assessment required`}[al.lv]||'Insufficient baseline data';}
+function dColor(id){return['#1a5fa8','#0d7a5f','#7c3aed','#be185d','#c2410c','#374151','#9f1239','#1d4ed8'][[...id].reduce((a,c)=>a+c.charCodeAt(0),0)%8];}
+
+/* ═══════════════════ PREDICTIVE ALERT ═══════════════════ */
+/*
+  Analyses last N PLT values to detect a downward/upward trend.
+  Uses linear regression slope on the last min(5, n) points.
+  Returns: { direction, slope, slopePerVisit, predicted, risk, message, detail }
+*/
+function calcPredictive(zs, plts, mean, scaledMAD){
+  const N=Math.min(5,plts.length);
+  if(N<3)return null;
+  const xs=[...Array(N).keys()];
+  const ys=plts.slice(-N);
+  // linear regression
+  const xMean=xs.reduce((a,b)=>a+b,0)/N;
+  const yMean=ys.reduce((a,b)=>a+b,0)/N;
+  const num=xs.reduce((s,x,i)=>s+(x-xMean)*(ys[i]-yMean),0);
+  const den=xs.reduce((s,x)=>s+(x-xMean)**2,0);
+  const slope=den>0?num/den:0;
+  // predicted next PLT
+  const predicted=Math.round(ys[ys.length-1]+slope);
+  const predictedZ=scaledMAD>0?(predicted-mean)/scaledMAD:0;
+  const predAlert=getAlert(predictedZ);
+  // consecutive direction check
+  const lastVals=plts.slice(-3);
+  const allDown=lastVals.every((v,i)=>i===0||v<lastVals[i-1]);
+  const allUp=lastVals.every((v,i)=>i===0||v>lastVals[i-1]);
+  // current last z
+  const lastZ=zs[zs.length-1];
+  const lastAl=getAlert(lastZ);
+
+  if(Math.abs(slope)<3){
+    return{dir:'stable',icon:'📊',title:'แนวโน้ม: คงที่',
+      detail:`PLT fluctuating ±${Math.abs(slope).toFixed(1)} ต่อครั้ง — อยู่ในช่วงปกติ`,
+      color:'stable',predicted,predAlert};
+  }
+  if(slope<-3){
+    const danger=allDown||predictedZ<=(-(CFG.zYellow||1.5));
+    return{dir:'down',icon:'📉',
+      title:danger?'⚠ ตรวจพบแนวโน้มลดลงต่อเนื่อง':'แนวโน้มลดลงเล็กน้อย',
+      detail:`PLT ลดลง ~${Math.abs(slope).toFixed(1)} ต่อครั้ง · คาดการณ์ครั้งถัดไป: PLT ${predicted} (Z = ${predictedZ.toFixed(2)})${danger?` → ${predAlert.label} expected`:''}`,
+      color:'down',predicted,predAlert,danger};
+  }
+  return{dir:'up',icon:'📈',
+    title:'แนวโน้มเพิ่มขึ้น',
+    detail:`PLT เพิ่มขึ้น ~${slope.toFixed(1)} ต่อครั้ง · คาดการณ์ครั้งถัดไป: PLT ${predicted} (Z = ${predictedZ.toFixed(2)})`,
+    color:'up',predicted,predAlert};
+}
+
+/* MPV trend helper */
+function calcMPVTrend(dr){
+  const mpvs=dr.filter(r=>r.mpv).map(r=>({date:r.date,mpv:r.mpv}));
+  if(mpvs.length<3)return null;
+  const vals=mpvs.map(m=>m.mpv);
+  const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const last3=vals.slice(-3);
+  const slope=(last3[last3.length-1]-last3[0])/(last3.length-1);
+  return{vals,mean:mean.toFixed(2),last:vals[vals.length-1],slope,dates:mpvs.map(m=>m.date)};
+}
+
+let _charts={};
+function dc(id){if(_charts[id]){_charts[id].destroy();delete _charts[id];}}
+
+/* ═══════════════════ HOME ═══════════════════ */
+function renderHome(){
+  updateBadge();
+  const empty=donors.length===0;
+  document.getElementById('dash-empty').style.display=empty?'block':'none';
+  document.getElementById('dash-content').style.display=empty?'none':'block';
+  if(empty){document.getElementById('dash-stats').innerHTML='';return;}
+  const cnt={none:0,yellow:0,orange:0,red:0};
+  records.forEach(r=>{const st=donorStats(r.donorId);if(!st)return;const idx=st.dr.findIndex(x=>x.date===r.date&&x.plt===r.plt);if(idx>=0){const al=getAlert(st.zs[idx]);cnt[al.lv]=(cnt[al.lv]||0)+1;}});
+  const tot=records.length||1;
+  const c=CFG.color,cr=parseInt(c.slice(1,3),16),cg=parseInt(c.slice(3,5),16),cb=parseInt(c.slice(5,7),16);
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="tile"><div class="tile-label">ผู้บริจาค</div><div class="tile-value">${donors.length}</div></div>
+    <div class="tile"><div class="tile-label">บันทึก</div><div class="tile-value">${records.length}</div></div>
+    <div class="tile"><div class="tile-label" style="color:var(--g);">ปกติ</div><div class="tile-value" style="color:var(--g);">${cnt.none}</div><div class="tile-sub">${Math.round(cnt.none/tot*100)}%</div></div>
+    <div class="tile"><div class="tile-label" style="color:var(--r);">Red</div><div class="tile-value" style="color:var(--r);">${cnt.red}</div><div class="tile-sub">${Math.round(cnt.red/tot*100)}%</div></div>`;
+  document.getElementById('alert-legend').innerHTML=[['badge-ok','ปกติ',cnt.none],['badge-y','Yellow',cnt.yellow],['badge-o','Orange',cnt.orange],['badge-r','Red',cnt.red]].map(([cls,l,n])=>`<span class="badge ${cls}">${l} ${n}</span>`).join('');
+  dc('alertChart');
+  _charts.alertChart=new Chart(document.getElementById('alertChart'),{type:'doughnut',data:{labels:['ปกติ','Yellow','Orange','Red'],datasets:[{data:[cnt.none,cnt.yellow,cnt.orange,cnt.red],backgroundColor:['#2e6b0e','#b87808','#c05828','#9a2828'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}});
+  const months=[...new Set(records.map(r=>r.date.slice(0,7)))].sort().slice(-8);
+  dc('monthChart');
+  _charts.monthChart=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:months.map(m=>m.slice(5)),datasets:[{label:'Mean PLT',data:months.map(m=>{const mr=records.filter(r=>r.date.startsWith(m));return mr.length?Math.round(mr.reduce((a,b)=>a+b.plt,0)/mr.length):null;}),backgroundColor:`rgba(${cr},${cg},${cb},.7)`,borderRadius:4,yAxisID:'y'},{label:'จำนวน',data:months.map(m=>records.filter(r=>r.date.startsWith(m)).length),type:'line',borderColor:'#2e6b0e',backgroundColor:'transparent',borderWidth:2,pointRadius:3,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'rgba(0,0,0,.05)'}},y2:{position:'right',grid:{display:false},min:0}}}});
+  const recent=donors.slice(-5).reverse().map(d=>{
+    const st=donorStats(d.id);if(!st)return'';
+    const last=st.dr[st.dr.length-1];const z=st.zs[st.zs.length-1];const al=getAlert(z);
+    return`<div class="donor-row" onclick="navAnalyze('${d.id}')"><div class="avatar" style="background:${dColor(d.id)}">${(d.name||d.id).slice(0,2)}</div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">${d.name}<span style="color:var(--t3);font-size:12px;font-weight:400;"> ${d.id}</span></div><div style="font-size:11px;color:var(--t2);">${st.dr.length} ครั้ง · ${last.date}</div></div><div style="text-align:right;"><div style="font-size:13px;font-weight:700;">PLT ${last.plt}</div><span class="badge ${al.cls}">${al.label}</span></div></div>`;
+  }).join('');
+  document.getElementById('recent-list').innerHTML=recent||'<div style="color:var(--t3);font-size:13px;padding:8px 0;">No recent activity</div>';
+  const alertN=donors.filter(d=>{const st=donorStats(d.id);if(!st)return false;return getAlert(st.zs[st.zs.length-1]).lv!=='none';}).length;
+  const dot=document.getElementById('alert-dot');
+  if(alertN>0){dot.textContent=alertN;dot.style.display='flex';}else dot.style.display='none';
+}
+
+/* ═══════════════════ ALERTS ═══════════════════ */
+function renderAlerts(){
+  const items=donors.map(d=>{const st=donorStats(d.id);if(!st)return null;const z=st.zs[st.zs.length-1];const al=getAlert(z);return al.lv==='none'?null:{d,st,z,al,last:st.dr[st.dr.length-1]};}).filter(Boolean).sort((a,b)=>Math.abs(b.z)-Math.abs(a.z));
+  document.getElementById('al-r').textContent=items.filter(x=>x.al.lv==='red').length;
+  document.getElementById('al-o').textContent=items.filter(x=>x.al.lv==='orange').length;
+  document.getElementById('al-y').textContent=items.filter(x=>x.al.lv==='yellow').length;
+  const dot=document.getElementById('alert-dot');
+  if(items.length>0){dot.textContent=items.length;dot.style.display='flex';}else dot.style.display='none';
+  document.getElementById('alert-list').innerHTML=items.length===0?
+    '<div style="text-align:center;padding:20px;color:var(--g);font-size:15px;font-weight:600;">✓ No active alerts</div>':
+    items.map(({d,st,z,al,last})=>`<div class="abox ${al.box}" onclick="navAnalyze('${d.id}')" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><strong style="font-size:14px;">${d.name} <span style="font-weight:400;font-size:12px;">(${d.id})</span></strong><span class="badge ${al.cls}">${al.label}</span></div><div style="font-size:12px;">PLT ${last.plt} · Z = ${z.toFixed(2)} · ${z>0?'↑':'↓'} · ${last.date}</div><div style="font-size:12px;margin-top:3px;font-style:italic;">${recText(al,z)}</div></div>`).join('');
+}
+
+/* ═══════════════════ RECORD MODE TOGGLE ═══════════════════ */
+function setRecordMode(mode){
+  _recordMode=mode;
+  document.getElementById('mode-quick').classList.toggle('active',mode==='quick');
+  document.getElementById('mode-full').classList.toggle('active',mode==='full');
+  document.getElementById('rec-quick').style.display=mode==='quick'?'block':'none';
+  document.getElementById('rec-full').style.display=mode==='full'?'block':'none';
+}
+
+/* ═══════════════════ QUICK ENTRY ═══════════════════ */
+function initRecord(){
+  const opts='<option value="">เลือกผู้บริจาค…</option>'+donors.map(d=>`<option value="${d.id}">${d.name} (${d.id})</option>`).join('');
+  document.getElementById('rec-donor').innerHTML=opts;
+  document.getElementById('qrec-donor').innerHTML=opts;
+  document.getElementById('rec-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('qrec-date').value=new Date().toISOString().split('T')[0];
+  const ph=document.getElementById('plt-hint');if(ph)ph.textContent='Min: ≥ '+CFG.pltMin+' ×10³/µL';
+  setRecordMode(_recordMode);
+}
+function onQuickDonorChange(){
+  const id=document.getElementById('qrec-donor').value;
+  const prof=document.getElementById('quick-donor-profile');
+  if(!id){prof.style.display='none';return;}
+  const d=donors.find(x=>x.id===id);
+  const st=donorStats(id);
+  prof.style.display='block';
+  document.getElementById('qp-av').style.background=dColor(id);
+  document.getElementById('qp-av').textContent=(d.name||id).slice(0,2);
+  document.getElementById('qp-name').textContent=d.name+(d.blood?' · '+d.blood:'');
+  if(st){
+    const last=st.dr[st.dr.length-1];
+    document.getElementById('qp-stats').textContent=`Mean PLT ${Math.round(st.mean)} · MAD ${Math.round(st.mad)} · ${st.dr.length} ครั้ง`;
+    const z=st.zs[st.zs.length-1];const al=getAlert(z);
+    document.getElementById('qp-last-badge').innerHTML=`<div style="text-align:right;"><div style="font-size:12px;font-weight:700;">${last.plt}</div><span class="badge ${al.cls}" style="font-size:10px;">${al.label}</span></div>`;
+  }else{
+    document.getElementById('qp-stats').textContent='ผู้บริจาคใหม่ — ต้องการ ≥2 ครั้งสำหรับ Z-score';
+    document.getElementById('qp-last-badge').innerHTML='';
+  }
+}
+function buildQuickRec(){
+  const donorId=document.getElementById('qrec-donor').value;
+  const date=document.getElementById('qrec-date').value;
+  const plt=parseFloat(document.getElementById('qrec-plt').value);
+  if(!donorId){toast('กรุณาเลือกผู้บริจาค','error');return null;}
+  if(!date){toast('กรุณาระบุวันที่','error');return null;}
+  if(isNaN(plt)||plt<50||plt>800){toast('PLT ต้องอยู่ระหว่าง 50–800 ×10³/µL','error');return null;}
+  return{donorId,date,plt,
+    mpv:parseFloat(document.getElementById('qrec-mpv').value)||null,
+    tech:document.getElementById('qrec-tech').value.trim()||null,
+    hospital:CFG.hospital,savedAt:new Date().toISOString(),isQuick:true};
+}
+function quickCalcOnly(){const r=buildQuickRec();if(!r)return;_qPending=r;showRecResult(r,false,'qrec-result');}
+function quickCalcSave(){const r=buildQuickRec();if(!r)return;records.push(r);saveData();_qPending=null;showRecResult(r,true,'qrec-result');toast('บันทึกเรียบร้อย','success');}
+
+/* ═══════════════════ FULL ENTRY ═══════════════════ */
+function buildRec(){
+  const donorId=document.getElementById('rec-donor').value;
+  const date=document.getElementById('rec-date').value;
+  const plt=parseFloat(document.getElementById('rec-plt').value);
+  if(!donorId){toast('กรุณาเลือกผู้บริจาค','error');return null;}
+  if(!date){toast('กรุณาระบุวันที่','error');return null;}
+  if(isNaN(plt)||plt<50||plt>800){toast('PLT ต้องอยู่ระหว่าง 50–800 ×10³/µL','error');return null;}
+  return{donorId,date,plt,
+    mpv:parseFloat(document.getElementById('rec-mpv').value)||null,
+    pdw:parseFloat(document.getElementById('rec-pdw').value)||null,
+    pct:parseFloat(document.getElementById('rec-pct').value)||null,
+    plcr:parseFloat(document.getElementById('rec-plcr').value)||null,
+    plcc:parseFloat(document.getElementById('rec-plcc').value)||null,
+    note:document.getElementById('rec-note').value.trim()||null,
+    tech:document.getElementById('rec-tech').value.trim()||null,
+    hospital:CFG.hospital,savedAt:new Date().toISOString()};
+}
+function calcOnly(){const r=buildRec();if(!r)return;_pending=r;showRecResult(r,false,'rec-result');}
+function calcAndSave(){const r=buildRec();if(!r)return;records.push(r);saveData();_pending=null;showRecResult(r,true,'rec-result');toast('บันทึกเรียบร้อย','success');}
+
+/* ═══════════════════ SHARED RESULT DISPLAY ═══════════════════ */
+function showRecResult(rec,saved,targetId){
+  const d=donors.find(x=>x.id===rec.donorId);
+  const tmpR=saved?records:[...records,rec];
+  const dr=tmpR.filter(r=>r.donorId===rec.donorId).sort((a,b)=>a.date.localeCompare(b.date));
+  const plts=dr.map(r=>r.plt);
+  const mean=plts.length?plts.reduce((a,b)=>a+b,0)/plts.length:null;
+  const diffs=mean?plts.map(v=>Math.abs(v-mean)).sort((a,b)=>a-b):[];
+  const mad=diffs.length?(diffs[Math.floor(diffs.length/2)]||1):null;
+  const sMAD=mad?mad*1.4826:null;
+  const z=sMAD&&sMAD>0?(rec.plt-mean)/sMAD:null;
+  const al=getAlert(z);const chg=mean?((rec.plt-mean)/mean*100).toFixed(1):'—';
+  const bl=blProfile(mean);const n=dr.length;
+  const belowMin=rec.plt<CFG.pltMin;
+  // Color: negative Z triggers alerts, positive Z is safe
+  const zC=z==null?'var(--t)':z>=0?'var(--g)':(Math.abs(z)<1.5?'var(--t2)':Math.abs(z)<2?'var(--am)':Math.abs(z)<2.5?'var(--o)':'var(--r)');
+
+  // Predictive alert
+  let predHTML='';
+  if(plts.length>=3&&mean&&sMAD){
+    const pred=calcPredictive(dr.map((_,i)=>sMAD>0?(plts[i]-mean)/sMAD:0),plts,mean,sMAD);
+    if(pred){
+      predHTML=`<div class="predict-box ${pred.color}">
+        <div class="predict-title">${pred.icon} ${pred.title}</div>
+        <div class="predict-sub">${pred.detail}</div>
+      </div>`;
+    }
+  }
+
+  document.getElementById(targetId).innerHTML=`
+  <div class="card">
+    <div class="card-title">Z-Score Result — ${d?d.name:rec.donorId} · ${rec.date}
+      ${saved?'<span style="color:var(--g);margin-left:4px;">✓ Saved</span>':'<span style="color:var(--am);margin-left:4px;">(preview)</span>'}
+    </div>
+    ${belowMin?`<div class="abox r" style="margin-bottom:10px;"><strong>⚠ PLT ${rec.plt} ต่ำกว่าเกณฑ์ขั้นต่ำ (${CFG.pltMin} ×10³/µL)</strong><div style="font-size:12px;margin-top:3px;">Double dose not recommended</div></div>`:''}
+    <div class="g4" style="margin-bottom:12px;">
+      <div class="tile"><div class="tile-label">Z-Score</div><div class="tile-value" style="color:${zC};font-size:20px;">${z!=null?z.toFixed(2):'—'}</div><div class="tile-sub">n=${n}</div></div>
+      <div class="tile"><div class="tile-label">Mean PLT</div><div class="tile-value">${mean?Math.round(mean):'—'}</div><div class="tile-sub">×10³/µL</div></div>
+      <div class="tile"><div class="tile-label">% Change</div><div class="tile-value">${mean?(chg>0?'+':'')+chg:'—'}${mean?'%':''}</div><div class="tile-sub" style="color:${bl.c};">${bl.l}</div></div>
+      <div class="tile"><div class="tile-label">Scaled MAD</div><div class="tile-value" style="font-size:17px;">${sMAD?sMAD.toFixed(1):'—'}</div></div>
+    </div>
+    <div class="abox ${al.box}" style="margin-bottom:10px;">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px;">${al.icon} ${al.label}</div>
+      <div style="font-size:13px;">${recText(al,z||0)}</div>
+      ${n<3?`<div style="font-size:11px;margin-top:4px;opacity:.75;">ⓘ ต้องการ ≥3 ครั้งเพื่อ baseline ที่น่าเชื่อถือ (ขณะนี้ ${n} ครั้ง)</div>`:''}
+    </div>
+    ${predHTML}
+    ${saved?`<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="navAnalyze('${rec.donorId}')">📈 Full Analysis</button><button class="btn btn-danger btn-xs" onclick="deleteRec('${rec.donorId}','${rec.date}',${rec.plt})">Undo</button></div>`:`<button class="btn btn-success btn-block" onclick="savePendingTo('${targetId}')" style="margin-top:10px;">💾 Save this record</button>`}
+  </div>`;
+}
+function savePendingTo(targetId){
+  const r=targetId==='qrec-result'?_qPending:_pending;
+  if(!r)return;records.push(r);saveData();showRecResult(r,true,targetId);
+  if(targetId==='qrec-result')_qPending=null;else _pending=null;
+  toast('บันทึกเรียบร้อย','success');
+}
+function deleteRec(id,date,plt){if(!confirm('ลบบันทึกนี้?'))return;records=records.filter(r=>!(r.donorId===id&&r.date===date&&r.plt===plt));saveData();document.getElementById('qrec-result').innerHTML='';document.getElementById('rec-result').innerHTML='';}
+
+/* ═══════════════════ DONORS ═══════════════════ */
+function autoId(){const used=donors.map(d=>d.id);let n=1;while(used.includes(CFG.prefix+String(n).padStart(3,'0')))n++;document.getElementById('nd-id').value=CFG.prefix+String(n).padStart(3,'0');}
+function clearDonor(){['nd-id','nd-name','nd-age','nd-weight','nd-height','nd-phone','nd-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('nd-blood').value='';}
+function addDonor(){
+  const id=document.getElementById('nd-id').value.trim(),name=document.getElementById('nd-name').value.trim();
+  if(!id||!name){toast('กรุณากรอกรหัสและชื่อผู้บริจาค','error');return;}
+  if(donors.find(d=>d.id===id)){toast(`ID "${id}" already exists`,'error');return;}
+  donors.push({id,name,age:parseInt(document.getElementById('nd-age').value)||null,weight:parseFloat(document.getElementById('nd-weight').value)||null,height:parseInt(document.getElementById('nd-height').value)||null,blood:document.getElementById('nd-blood').value||null,phone:document.getElementById('nd-phone').value.trim()||null,note:document.getElementById('nd-note').value.trim()||null,hospital:CFG.hospital,createdAt:new Date().toISOString().split('T')[0]});
+  saveData();clearDonor();renderDonorList();toast(`เพิ่ม "${name}" เรียบร้อย`,'success');
+}
+function deleteDonor(id){
+  const d=donors.find(x=>x.id===id);if(!d)return;
+  const n=records.filter(r=>r.donorId===id).length;
+  if(!confirm(`ลบ "${d.name}" และบันทึก ${n} ครั้ง?\nไม่สามารถย้อนกลับได้`))return;
+  donors=donors.filter(x=>x.id!==id);records=records.filter(r=>r.donorId!==id);
+  saveData();renderDonorList();toast('ลบข้อมูลเรียบร้อย','info');
+}
+function renderDonorList(q=''){
+  updateBadge();
+  const filtered=donors.filter(d=>(d.id+(d.name||'')).toLowerCase().includes((q||'').toLowerCase()));
+  if(!filtered.length){document.getElementById('donor-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-size:14px;">No donors found</div>';return;}
+  document.getElementById('donor-list').innerHTML=filtered.map(d=>{
+    const st=donorStats(d.id);const last=st?st.dr[st.dr.length-1]:null;const z=st?st.zs[st.zs.length-1]:null;const al=getAlert(z);const bl=blProfile(st?st.mean:null);
+    return`<div class="donor-row"><div class="avatar" style="background:${dColor(d.id)}" onclick="navAnalyze('${d.id}')">${(d.name||d.id).slice(0,2)}</div><div style="flex:1;cursor:pointer;" onclick="navAnalyze('${d.id}')"><div style="font-size:14px;font-weight:600;">${d.name} <span style="color:var(--t3);font-size:11px;">${d.id}</span></div><div style="font-size:11px;color:var(--t2);">${d.blood||'—'} · ${st?st.dr.length:0} ครั้ง · <span style="color:${bl.c};">${bl.l}</span></div></div><div style="text-align:right;">${last?`<div style="font-size:13px;font-weight:700;">${last.plt}</div>`:'<div style="font-size:11px;color:var(--t3);">—</div>'}<span class="badge ${al.cls}">${al.label}</span></div><button onclick="deleteDonor('${d.id}')" style="background:none;border:none;padding:6px;cursor:pointer;color:var(--t3);font-size:16px;margin-left:4px;">✕</button></div>`;
+  }).join('');
+}
+function filterDonors(q){renderDonorList(q);}
+
+/* ═══════════════════ ANALYZE ═══════════════════ */
+let _trendChart=null, _mpvChart=null;
+function initAnalyze(){
+  const sel=document.getElementById('ana-donor'),cur=sel.value;
+  sel.innerHTML='<option value="">เลือกผู้บริจาค…</option>'+donors.map(d=>`<option value="${d.id}">${d.name} (${d.id})</option>`).join('');
+  if(cur){sel.value=cur;if(sel.value)renderAnalyze(sel.value);}
+}
+function renderAnalyze(id){
+  const body=document.getElementById('ana-body');
+  if(!id){body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><h3>เลือกผู้บริจาค</h3><p>ดูกราฟ PLT + MPV และการพยากรณ์แนวโน้ม</p></div>';return;}
+  const d=donors.find(x=>x.id===id);const st=donorStats(id);
+  if(!st||!st.dr.length){body.innerHTML=`<div class="card"><div class="empty" style="padding:24px 0;"><h3>No records for ${d?d.name:id}</h3><button class="btn btn-primary btn-sm" style="margin-top:14px;" onclick="navRecord('${id}')">+ Add Record</button></div></div>`;return;}
+  const last=st.dr[st.dr.length-1];const lastZ=st.zs[st.zs.length-1];const lastAl=getAlert(lastZ);const bl=blProfile(st.mean);
+  const tHigh=Math.round(st.mean+2.5*st.scaledMAD);const tLow=Math.round(Math.max(0,st.mean-2.5*st.scaledMAD));
+  // Predictive analysis
+  const pred=st.dr.length>=3?calcPredictive(st.zs,st.dr.map(r=>r.plt),st.mean,st.scaledMAD):null;
+  const predHTML=pred?`<div class="predict-box ${pred.color}"><div class="predict-title">${pred.icon} ${pred.title}</div><div class="predict-sub">${pred.detail}</div></div>`:'';
+  // MPV info
+  const mpvTrend=calcMPVTrend(st.dr);
+  const mpvHTML=mpvTrend?`<div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--t2);">
+    <span>แนวโน้ม MPV:</span>
+    <span class="mpv-chip" style="background:${mpvTrend.slope>0.2?'#faecd8':mpvTrend.slope<-0.2?'#e8f5e0':'#f0ede6'};color:${mpvTrend.slope>0.2?'var(--am)':mpvTrend.slope<-0.2?'var(--g)':'var(--t2)'}">
+      ${mpvTrend.slope>0.2?'↑ เพิ่มขึ้น':mpvTrend.slope<-0.2?'↓ ลดลง':'→ คงที่'} (mean ${mpvTrend.mean} fL)
+    </span>
+  </div>`:'' ;
+
+  // Table
+  const tableRows=st.dr.slice().reverse().map((r,i)=>{
+    const z=st.zs[st.dr.length-1-i];const al=getAlert(z);const chg=((r.plt-st.mean)/st.mean*100).toFixed(1);
+    const zC=z>=0?'var(--g)':(Math.abs(z)<1.5?'var(--t2)':Math.abs(z)<2?'var(--am)':Math.abs(z)<2.5?'var(--o)':'var(--r)');
+    return`<tr${r.plt<CFG.pltMin?' style="background:var(--rl);"':''}><td>${r.date}</td><td style="font-weight:700;${r.plt<CFG.pltMin?'color:var(--r);':''}">${r.plt}</td><td>${r.mpv||'—'}</td><td style="font-weight:700;color:${zC}">${z.toFixed(2)}</td><td><span class="badge ${al.cls}" style="font-size:10px;">${al.label}</span></td><td>${chg>0?'+':''}${chg}%</td></tr>`;
+  }).join('');
+
+  body.innerHTML=`
+  <!-- Profile -->
+  <div class="profile-card">
+    <div class="av-lg" style="background:${dColor(id)}">${(d.name||id).slice(0,2)}</div>
+    <div><div style="font-size:17px;font-weight:700;">${d.name}</div>
+    <div style="font-size:12px;color:var(--t2);">${d.id} · ${d.age?d.age+' yr':'—'} · ${d.blood||'—'}</div></div>
+  </div>
+  <!-- Stats -->
+  <div class="g4" style="margin-bottom:12px;">
+    <div class="tile"><div class="tile-label">Mean PLT</div><div class="tile-value">${Math.round(st.mean)}</div><div class="tile-sub">×10³/µL</div></div>
+    <div class="tile"><div class="tile-label">Scaled MAD</div><div class="tile-value" style="font-size:17px;">${st.scaledMAD.toFixed(1)}</div></div>
+    <div class="tile"><div class="tile-label">บันทึก</div><div class="tile-value">${st.dr.length}</div></div>
+    <div class="tile"><div class="tile-label">Baseline</div><div class="tile-value" style="font-size:14px;color:${bl.c};">${bl.l}</div></div>
+  </div>
+  <!-- Predictive Alert -->
+  ${predHTML}
+  <!-- Current Status -->
+  <div class="card">
+    <div class="card-title">Current Status</div>
+    <div class="abox ${lastAl.box}" style="margin-bottom:10px;">
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${lastAl.icon} ${lastAl.label} · Z = ${lastZ.toFixed(2)}</div>
+      <div style="font-size:13px;">PLT ${last.plt} · ${last.date}</div>
+      <div style="font-size:13px;margin-top:3px;font-style:italic;">${recText(lastAl,lastZ)}</div>
+    </div>
+    <div style="font-size:12px;color:var(--t2);line-height:1.8;">
+      <div>ช่วง ±2.5σ: <strong>${tLow} – ${tHigh}</strong> ×10³/µL</div>
+      <div>PLT ขั้นต่ำ: <strong>${CFG.pltMin}</strong> ×10³/µL</div>
+    </div>
+    ${mpvHTML}
+    <button class="btn btn-primary btn-block btn-sm" style="margin-top:12px;" onclick="navRecord('${id}')">+ บันทึกผลใหม่</button>
+  </div>
+  <!-- PLT + MPV Chart (dual axis) -->
+  <div class="card">
+    <div class="card-title">PLT &amp; MPV Trend — ${d.name}</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:11px;flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:3px;background:var(--p);display:inline-block;border-radius:2px;"></span>PLT (แกนซ้าย)</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:3px;background:#e67e22;display:inline-block;border-radius:2px;"></span>MPV (แกนขวา)</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;background:var(--g);display:inline-block;border-radius:2px;border-top:2px dashed var(--g);"></span>Mean</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;background:var(--r);display:inline-block;opacity:.5;"></span>±2.5σ</span>
+    </div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div style="min-width:${Math.max(320,st.dr.length*42)}px;height:240px;position:relative;">
+        <canvas id="dualChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- History Table -->
+  <div class="card">
+    <div class="card-title">ประวัติการบริจาค (${st.dr.length} ครั้ง)</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>วันที่</th><th>PLT</th><th>MPV</th><th>Z-Score</th><th>Alert</th><th>%Δ</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table></div>
+  </div>`;
+
+  // Build dual-axis chart (PLT + MPV)
+  if(_trendChart){_trendChart.destroy();_trendChart=null;}
+  const cl=CFG.color,cr=parseInt(cl.slice(1,3),16),cg=parseInt(cl.slice(3,5),16),cb=parseInt(cl.slice(5,7),16);
+  const labels=st.dr.map(r=>r.date.slice(5));
+  const pltData=st.dr.map(r=>r.plt);
+  const mpvData=st.dr.map(r=>r.mpv||null);
+  const hasMPV=mpvData.some(v=>v!==null);
+  const datasets=[
+    {label:'PLT',data:pltData,borderColor:cl,backgroundColor:`rgba(${cr},${cg},${cb},.07)`,borderWidth:2.5,pointRadius:5,fill:true,yAxisID:'y',
+     pointBackgroundColor:st.dr.map((_,i)=>{const z=st.zs[i];if(z>=0) return cl;const az=Math.abs(z);return az>=2.5?'#9a2828':az>=2?'#c05828':az>=1.5?'#b87808':cl;})},
+    {label:'Mean',data:Array(pltData.length).fill(Math.round(st.mean)),borderColor:'#2e6b0e',borderDash:[6,4],borderWidth:1.5,pointRadius:0,yAxisID:'y'},
+    {label:'+2.5σ',data:Array(pltData.length).fill(tHigh),borderColor:'rgba(154,40,40,.35)',borderDash:[3,3],borderWidth:1,pointRadius:0,yAxisID:'y'},
+    {label:'-2.5σ',data:Array(pltData.length).fill(tLow),borderColor:'rgba(154,40,40,.35)',borderDash:[3,3],borderWidth:1,pointRadius:0,yAxisID:'y'},
+    {label:'Min',data:Array(pltData.length).fill(CFG.pltMin),borderColor:'rgba(154,40,40,.6)',borderDash:[8,2],borderWidth:1.5,pointRadius:0,yAxisID:'y'},
+  ];
+  if(hasMPV){
+    datasets.push({label:'MPV',data:mpvData,borderColor:'#e67e22',backgroundColor:'rgba(230,126,34,.06)',borderWidth:2,pointRadius:4,fill:false,yAxisID:'y2',borderDash:[],spanGaps:true,pointBackgroundColor:'#e67e22'});
+  }
+  _trendChart=new Chart(document.getElementById('dualChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}`}}},
+    scales:{
+      y:{beginAtZero:false,grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'PLT (×10³/µL)',font:{size:10},color:'var(--t2)'}},
+      y2:{position:'right',grid:{display:false},title:{display:hasMPV,text:'MPV (fL)',font:{size:10},color:'#e67e22'},ticks:{color:'#e67e22'}},
+      x:{grid:{display:false},ticks:{maxRotation:50,maxTicksLimit:10}}
+    }}});
+}
+
+/* ═══════════════════ SETTINGS ═══════════════════ */
+function initSettings(){
+  document.getElementById('set-hospital').value=CFG.hospital||'';
+  document.getElementById('set-dept').value=CFG.dept||'';
+  document.getElementById('set-prefix').value=CFG.prefix||'DD';
+  document.getElementById('set-plt').value=CFG.pltMin||250;
+  document.querySelectorAll('#set-colors .cp').forEach(el=>{
+    el.onclick=()=>{document.querySelectorAll('#set-colors .cp').forEach(d=>d.classList.remove('selected'));el.classList.add('selected');CFG.color=el.dataset.c;applyTheme();};
+    el.classList.toggle('selected',el.dataset.c===CFG.color);
+    el.style.border=el.dataset.c===CFG.color?'3px solid var(--t)':'3px solid transparent';
+  });
+}
+function saveSettings(){
+  CFG.hospital=document.getElementById('set-hospital').value.trim();
+  CFG.dept=document.getElementById('set-dept').value.trim();
+  CFG.prefix=(document.getElementById('set-prefix').value.trim()||'DD').toUpperCase();
+  CFG.pltMin=parseInt(document.getElementById('set-plt').value)||250;
+  const sel=document.querySelector('#set-colors .cp.selected');if(sel)CFG.color=sel.dataset.c;
+  saveData();applyTheme();toast('บันทึกการตั้งค่าเรียบร้อย','success');
+}
+
+/* ═══════════════════ EXPORT ═══════════════════ */
+function exportCSV(){
+  if(!records.length){toast('ยังไม่มีข้อมูล','warning');return;}
+  const h=['โรงพยาบาล','รหัส','ชื่อ','วันที่','PLT','MPV','PDW','PCT','P-LCR','P-LCC','Personal Mean','MAD','Z-Score','Alert','%เปลี่ยน','ต่ำกว่าเกณฑ์?','ผู้บันทึก','หมายเหตุ'];
+  const rows=[h];
+  records.forEach(r=>{
+    const d=donors.find(x=>x.id===r.donorId);const st=donorStats(r.donorId);
+    const idx=st?st.dr.findIndex(x=>x.date===r.date&&x.plt===r.plt):-1;
+    const z=st&&idx>=0?st.zs[idx]:null;const al=getAlert(z);
+    rows.push([r.hospital||CFG.hospital,r.donorId,d?d.name:'',r.date,r.plt,r.mpv||'',r.pdw||'',r.pct||'',r.plcr||'',r.plcc||'',st?Math.round(st.mean):'',st?Math.round(st.mad):'',z!=null?z.toFixed(3):'',al.label,st?((r.plt-st.mean)/st.mean*100).toFixed(2):'',r.plt<CFG.pltMin?'ใช่':'',r.tech||'',r.note||'']);
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download=(CFG.hospital||'plt')+'_'+new Date().toISOString().split('T')[0]+'.csv';a.click();toast('ส่งออก CSV เรียบร้อย','success');
+}
+function backupJSON(){
+  const data={version:4,hospital:CFG.hospital,exportedAt:new Date().toISOString(),cfg:CFG,donors,records};
+  const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));a.download=(CFG.hospital||'plt')+'_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('สำรองข้อมูลเรียบร้อย','success');
+}
+function restoreJSON(){document.getElementById('restore-file').click();}
+function doRestore(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.donors&&d.records){if(!confirm(`กู้คืนข้อมูล:\nผู้บริจาค ${d.donors.length} ราย · บันทึก ${d.records.length} ครั้ง\nจะเขียนทับข้อมูลปัจจุบัน ดำเนินการต่อ?`))return;if(d.cfg)CFG={...CFG,...d.cfg};donors=d.donors;records=d.records;saveData();applyTheme();toast(`กู้คืนสำเร็จ: ${donors.length} ราย, ${records.length} ครั้ง`,'success');goTab('home',0);}else toast('รูปแบบไฟล์ไม่ถูกต้อง','error');}catch(err){toast('Failed: '+err.message,'error');}};
+  reader.readAsText(f);ev.target.value='';
+}
+function clearAll(){if(!confirm(`ลบข้อมูลทั้งหมด?\nผู้บริจาค ${donors.length} ราย · บันทึก ${records.length} ครั้ง`))return;if(!confirm('ยืนยันอีกครั้ง: ลบถาวร?'))return;donors=[];records=[];saveData();toast('ล้างข้อมูลเรียบร้อย','info');goTab('home',0);}
+
+/* ═══════════════════ PWA ═══════════════════ */
+let _dp=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_dp=e;setTimeout(()=>{document.getElementById('install-banner').style.display='flex';},3000);});
+document.getElementById('install-btn').addEventListener('click',async()=>{if(!_dp)return;_dp.prompt();const{outcome}=await _dp.userChoice;_dp=null;document.getElementById('install-banner').style.display='none';if(outcome==='accepted')toast('ติดตั้งแอปสำเร็จ! 🎉','success');});
+window.addEventListener('appinstalled',()=>{document.getElementById('install-banner').style.display='none';toast('ติดตั้งแอปสำเร็จ!','success');});
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('SW:',e)));
+
+/* ═══════════════════ BOOT ═══════════════════ */
+loadData();
+if(!CFG.hospital){document.getElementById('setup-overlay').style.display='flex';}
+else{applyTheme();updateBadge();renderHome();}
+</script>
+</body>
+</html>
